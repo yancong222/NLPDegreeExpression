@@ -3,23 +3,19 @@
 
 @author: Yan Cong
 Created on Nov, 2023
+Source: google colab titled "Stanza: A Tutorial on the Python CoreNLP Interface"
 
 ### Installing Stanza
 
 Installing and importing Stanza are as simple as running the following commands:
 """
 
-# Install stanza; note that the prefix "!" is not needed if you are running in a terminal
 !pip install stanza
-
-# Import stanza
 import stanza
 
 """### Setting up Stanford CoreNLP
 """
-
 # Download the Stanford CoreNLP package with Stanza's installation command
-# This'll take several minutes, depending on the network speed
 corenlp_dir = './corenlp'
 stanza.install_corenlp(dir=corenlp_dir)
 
@@ -31,7 +27,6 @@ os.environ["CORENLP_HOME"] = corenlp_dir
 !ls $CORENLP_HOME
 
 import subprocess
-
 import stanza
 from stanza.protobuf import SemgrexRequest, SemgrexResponse
 from stanza.server.client import resolve_classpath
@@ -42,11 +37,9 @@ nlp = stanza.Pipeline('en')
 nlp = stanza.Pipeline('en',processors='tokenize,pos,lemma,depparse')
 
 """## Custom functions"""
-
 def send_request(request, response_type, java_main):
     """
     Use subprocess to run the Semgrex processor on the given request
-
     Returns the protobuf response
     """
     pipe = subprocess.run(["java", "-cp", resolve_classpath(), java_main],
@@ -63,7 +56,6 @@ def send_semgrex_request(request):
 def process_doc(doc, *semgrex_patterns):
     """
     Returns the result of processing the given semgrex expression on the stanza doc.
-
     Currently the return is a SemgrexResponse from CoreNLP.proto
     """
     request = SemgrexRequest()
@@ -96,22 +88,16 @@ def process_doc(doc, *semgrex_patterns):
                     edge.source = word.head
                     edge.target = word_idx+1
                     edge.dep = word.deprel
-
                 word_idx = word_idx + 1
-
     return send_semgrex_request(request)
-
 
 def read_in_sentences(inputfile):
     sent_list = []
     line_list = []
     infile = pd.read_csv(data + inputfile)
     for i in infile.index:
-      if i > 40338:
         row = infile['text'][i]
-        #print('row: ', row)
         line_list.append([infile['answer_id'][i], row])
-        #print('line_list: ', line_list)
         sent_list.append(row)
     return sent_list, line_list
 
@@ -126,9 +112,6 @@ def save_new_sent_list(found_flag,line_list,outputfile):
     return outputfile
 
 """# Starting here"""
-
-from google.colab import drive
-drive.mount('/content/drive')
 data = ('/corpus_files/')
 
 import pandas as pd
@@ -165,7 +148,7 @@ input_q1.to_csv(data+'file.csv')
 
 """# Experiment"""
 
-inputfile = 'file.csv' #187 problematic
+inputfile = 'file.csv' 
 semgrexrules = [
 
 "{pos: JJR} > /obl:than/ {}", #"Alex is taller than Kai"
@@ -199,7 +182,7 @@ for i in range(len(sent_list)):
       save_new_sent_list(found_flag,line_list,outputfile)
       print('saved: ', i)
 
-inputfile = 'file.csv' #187 problematic
+inputfile = 'file.csv' 
 
 sent_list, line_list = read_in_sentences(inputfile)
 found_flag = [0]*len(sent_list)
@@ -207,7 +190,6 @@ for i in range(len(sent_list)):
   if i%10 == 0:
     print(i)
   doc = nlp(sent_list[i])
-  #print('doc: ', doc)
   for item in doc.iter_words():
     if item.feats == "Degree=Cmp":
       found_flag[i] = item.text
@@ -234,7 +216,6 @@ for i in range(len(sent_list)):
     if i%10 == 0:
       print(i)
     doc = nlp(sent_list[i])
-    #print('doc: ', doc)
     for item in doc.iter_words():
       if item.feats == "Degree=Cmp":
         found_flag[i] = item.text
