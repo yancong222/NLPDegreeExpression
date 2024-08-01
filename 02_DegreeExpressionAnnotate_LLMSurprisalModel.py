@@ -16,17 +16,15 @@ import shutil, sys, glob
 import torch
 
 !pip install transformers
-
 !pip install sentencepiece
 
 from transformers import T5Tokenizer, T5Config, T5ForConditionalGeneration, T5Model
-T5_PATH = "t5-large" # "t5-small", "t5-base", "t5-large" [the best a CPU-computer can do, very slow], "t5-3b", "t5-11b"
+T5_PATH = "t5-large" 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 t5_tokenizer = T5Tokenizer.from_pretrained(T5_PATH)
 t5_config = T5Config.from_pretrained(T5_PATH)
 t5_mlm = T5ForConditionalGeneration.from_pretrained(T5_PATH, config=t5_config).to(DEVICE)
-
 type(t5_tokenizer) 
 
 def acceptability(seq):
@@ -38,9 +36,7 @@ def acceptability(seq):
 df = pd.read_csv(data + 'file.csv', index_col = 0)
 df['COLA_T5large'] = df['text'].apply(lambda x: acceptability(x))
 df.head()
-
 df.to_csv(data + 'file.csv')
-
 df.columns
 
 df_cleaned = pd.read_csv(data + 'file.csv', index_col = 0)
@@ -51,12 +47,9 @@ df_cmb = df_cleaned.merge(df, on = ['Cmp', 'answer_id', 'text', 'anon_id', 'L1',
 df_cmb = df_cmb[df_cmb["text"].str.contains("Part of Speech") == False]
 df_cmb = df_cmb[df_cmb["text"].str.contains("part of speech") == False]
 df_cmb = df_cmb[df_cmb["text"].str.contains("Part of speech") == False]
-
 df_cmb = df_cmb.reset_index(drop = True)
 df_cmb = df_cmb.drop_duplicates(subset = ['text'], ignore_index = True)
-
 df_cmb.tail()
-
 df_cmb.to_csv(data + 'file.csv')
 
 df = df_cmb
@@ -64,7 +57,6 @@ df['Cmp'].value_counts().to_csv(data+'count.csv')
 df['L1'].value_counts().to_csv(data+'count.csv')
 df['gender'].value_counts().to_csv(data+'count.csv')
 df['level_id'].value_counts().to_csv(data+'count.csv')
-
 df.COLA_T5large.value_counts()
 
 """# Target Surprisals GPTs"""
@@ -111,7 +103,7 @@ print('finished: gptneo')
 
 df.head()
 
-"""# Sentence Surprisals GPTs"""
+"""# Sentence Surprisals: e.g., GPTs"""
 
 df = pd.read_csv(data + 'Cmp.csv', index_col = 0)
 df['gpt2_len_tokens'] = ''
@@ -141,7 +133,6 @@ for model in models:
   df.to_csv(data + 'file.csv')
 
 df.head()
-
 df.columns
 
 df = df[['Cmp', 'answer_id', 'text', 'anon_id', 'L1', 'gender', 'semester',
@@ -159,16 +150,14 @@ def sentence_surprisal(stimuli, model):
 
 df['gpt2_sent_surprisal'] = df['text'].apply(lambda x: sentence_surprisal(x, gpt2))
 df.to_csv(data + 'file.csv')
-
 df['distilgpt2_sent_surprisal'] = df['text'].apply(lambda x: sentence_surprisal(x, distilgpt2))
 df.to_csv(data + 'file.csv')
-
 df['gptneo_sent_surprisal'] = df['text'].apply(lambda x: sentence_surprisal(x, gptneo))
 df.to_csv(data + 'file.csv')
 
 df.head()
 
-"""# Longitudinal"""
+"""# Longitudinal studies"""
 
 df['semester'].value_counts()
 
@@ -179,19 +168,13 @@ df_lg.head()
 """# Stats"""
 
 from scipy.stats import pearsonr, spearmanr
-
 df['gpt2_target_surprisal'].describe()
-
 df['distilgpt2_target_surprisal'].describe()
-
 df['gptneo_target_surprisal'].describe()
 
 df[['placement_test', 'level_id', 'sentence_len', 'gpt2_target_surprisal', 'distilgpt2_target_surprisal', 'gptneo_target_surprisal']].corr()
-
 spearmanr(df['level_id'], df['gpt2_target_surprisal']) 
-
 spearmanr(df['level_id'], df['distilgpt2_target_surprisal'])
-
 spearmanr(df['level_id'], df['gptneo_target_surprisal'])
 
 df['COLA_T5large'].replace('acceptable', '1', inplace = True)
