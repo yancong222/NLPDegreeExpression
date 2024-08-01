@@ -4,13 +4,11 @@ Created on Jul 3, 2012
 @author: Gaurav Kharkwal
 @note: an extension to the Earley parser using the techniques described in Stolcke (1995) to compute prefix probabilities.
 
-
 Revised on June, 2024
 @author: Yan Cong
 '''
 
 import nltk, numpy, heapq, math, re
-
 class State():
     def __init__(self, rule, dot_index, start_column, alpha, gamma):
         self.rule = rule
