@@ -1,6 +1,6 @@
 # NLPDegreeExpression
 
-Meta-data and scripts for the _Natural Language Processing_ article titled 
+Meta-data, R and Python scripts for the _Natural Language Processing_ article titled 
 
 Cong, Y. (2024). Second language learning of degree expressions: A computational approach. Natural Language Processing, 1-23.
 
